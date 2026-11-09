@@ -570,6 +570,17 @@ public class MainActivity extends Activity {
             "🔧 GASTOS COM ÓLEO",
             dinheiro(prefs.getFloat("totalOleo",0)));
 
+        LinearLayout total = cartao(
+            "💰 TOTAL GASTO",
+            dinheiro(prefs.getFloat("totalCombustivel",0)
+                + prefs.getFloat("totalOleo",0)),
+            VERDE
+        );
+        LinearLayout.LayoutParams margemTotal =
+            new LinearLayout.LayoutParams(-1,-2);
+        margemTotal.setMargins(5,5,5,12);
+        painel.addView(total,margemTotal);
+
         LinearLayout oleo = cartao(
             "🔧 CONTROLE DE TROCA DE ÓLEO",
             situacao + "\n" + aviso +
