@@ -14,7 +14,8 @@ import java.text.*;
 public class MainActivity extends Activity {
     LinearLayout tela;
     EditText kmCampo, litrosCampo, precoCampo, kmOleoCampo, valorOleoCampo;
-    TextView painel, historicoView;
+    LinearLayout painel;
+    TextView historicoView;
     android.content.SharedPreferences prefs;
     android.media.ToneGenerator som;
     long downloadAtualizacao = -1;
@@ -73,7 +74,9 @@ public class MainActivity extends Activity {
         subtitulo.setPadding(0,8,0,20);
         tela.addView(subtitulo);
 
-        painel = texto();
+        painel = new LinearLayout(this);
+        painel.setOrientation(1);
+        painel.setBackgroundColor(Color.TRANSPARENT);
         tela.addView(painel);
 
         kmCampo = new EditText(this);
@@ -236,18 +239,33 @@ public class MainActivity extends Activity {
     void botao(String nome, android.view.View.OnClickListener acao) {
         Button b = new Button(this);
         b.setText(nome);
-        android.graphics.drawable.GradientDrawable fundo = new android.graphics.drawable.GradientDrawable();
-        fundo.setColor(Color.rgb(225,225,225));
-        fundo.setCornerRadius(14);
-        fundo.setStroke(2, Color.BLACK);
+
+        int cor = nome.contains("COMBUSTÍVEL") ? Color.rgb(22,125,69)
+            : nome.contains("MANUTENÇÃO") ? Color.rgb(35,105,170)
+            : nome.contains("RELATÓRIOS") ? Color.rgb(120,85,165)
+            : Color.rgb(75,90,100);
+
+        android.graphics.drawable.GradientDrawable fundo =
+            new android.graphics.drawable.GradientDrawable();
+        fundo.setColor(cor);
+        fundo.setCornerRadius(22);
         b.setBackground(fundo);
-        b.setTextColor(Color.BLACK);
+        b.setTextColor(Color.WHITE);
+        b.setTextSize(16);
         b.setTypeface(null, Typeface.BOLD);
         b.setAllCaps(false);
-        tela.addView(b);
-        b.setOnClickListener(v -> { tocarSom(); acao.onClick(v); });
-    }
 
+        LinearLayout.LayoutParams p =
+            new LinearLayout.LayoutParams(-1,-2);
+        p.setMargins(4,7,4,7);
+        b.setLayoutParams(p);
+
+        tela.addView(b);
+        b.setOnClickListener(v -> {
+            tocarSom();
+            acao.onClick(v);
+        });
+    }
 
     EditText campoDialog(String dica) {
         EditText e = new EditText(this);
@@ -471,38 +489,100 @@ public class MainActivity extends Activity {
         }
     }
 
+
+    LinearLayout cartao(String titulo, String valor, int cor) {
+        LinearLayout c = new LinearLayout(this);
+        c.setOrientation(1);
+        c.setPadding(16,18,16,18);
+
+        android.graphics.drawable.GradientDrawable fundo =
+            new android.graphics.drawable.GradientDrawable();
+        fundo.setColor(Color.WHITE);
+        fundo.setCornerRadius(22);
+        fundo.setStroke(2, Color.rgb(225,235,227));
+        c.setBackground(fundo);
+        c.setElevation(5);
+
+        TextView t = new TextView(this);
+        t.setText(titulo);
+        t.setTextSize(14);
+        t.setTextColor(Color.DKGRAY);
+
+        TextView v = new TextView(this);
+        v.setText(valor);
+        v.setTextSize(21);
+        v.setTextColor(cor);
+        v.setTypeface(null,Typeface.BOLD);
+        v.setPadding(0,10,0,0);
+
+        c.addView(t);
+        c.addView(v);
+        return c;
+    }
+
+    void linhaCartoes(String t1, String v1, String t2, String v2) {
+        LinearLayout linha = new LinearLayout(this);
+        linha.setOrientation(0);
+
+        LinearLayout.LayoutParams item =
+            new LinearLayout.LayoutParams(0,-2,1);
+        item.setMargins(5,5,5,12);
+
+        linha.addView(cartao(t1,v1,VERDE),item);
+        linha.addView(cartao(t2,v2,VERDE),item);
+        painel.addView(linha);
+    }
+
     void atualizar() {
         double km = prefs.getFloat("km",0);
         double inicial = prefs.getFloat("kmInicial",0);
         double kmOleo = prefs.getFloat("kmOleo",(float)inicial);
         double faltam = kmOleo + INTERVALO_OLEO - km;
-
         double proximaTroca = kmOleo + INTERVALO_OLEO;
 
         String situacao = faltam <= 0
-            ? "🔴 TROCA DE ÓLEO ATRASADA!"
+            ? "🔴 TROCA ATRASADA"
             : faltam <= 100
-                ? "🟠 ATENÇÃO: TROCA PRÓXIMA!"
+                ? "🟠 ATENÇÃO: TROCA PRÓXIMA"
                 : "🟢 ÓLEO EM DIA";
 
-        String aviso = situacao + "\\n" +
-            (faltam <= 0
-                ? "Troca vencida há " + String.format(Locale.getDefault(),
-                    "%.0f km", Math.abs(faltam))
-                : "Faltam " + String.format(Locale.getDefault(),
-                    "%.0f km", faltam) + " para trocar.");
+        String aviso = faltam <= 0
+            ? "Atrasada há " + String.format(Locale.getDefault(),"%.0f km",Math.abs(faltam))
+            : "Faltam " + String.format(Locale.getDefault(),"%.0f km",faltam) + " para trocar";
 
-        painel.setText(
-            "📍 KM atual: " + String.format(Locale.getDefault(),"%.0f",km)
-            + "\\n⛽ Abastecimentos: " + prefs.getInt("quantidade",0)
-            + "\\n💰 Combustível: " +
-                dinheiro(prefs.getFloat("totalCombustivel",0))
-            + "\\n🔧 Gastos com óleo: " +
-                dinheiro(prefs.getFloat("totalOleo",0))
-            + "\\n\\n🔧 CONTROLE DE TROCA DE ÓLEO"
-            + "\\nÚltima troca: " + String.format(Locale.getDefault(),"%.0f",kmOleo) + " km"
-            + "\\nPróxima troca: " + String.format(Locale.getDefault(),"%.0f",proximaTroca) + " km"
-            + "\\n\\n" + aviso);
+        painel.removeAllViews();
+
+        TextView tituloPainel = new TextView(this);
+        tituloPainel.setText("RESUMO DA SUA MOTO");
+        tituloPainel.setTextSize(19);
+        tituloPainel.setTextColor(VERDE);
+        tituloPainel.setTypeface(null,Typeface.BOLD);
+        tituloPainel.setPadding(8,15,8,12);
+        painel.addView(tituloPainel);
+
+        linhaCartoes("🏍️ QUILOMETRAGEM",
+            String.format(Locale.getDefault(),"%.0f km",km),
+            "⛽ ABASTECIMENTOS",
+            String.valueOf(prefs.getInt("quantidade",0)));
+
+        linhaCartoes("💰 COMBUSTÍVEL",
+            dinheiro(prefs.getFloat("totalCombustivel",0)),
+            "🔧 GASTOS COM ÓLEO",
+            dinheiro(prefs.getFloat("totalOleo",0)));
+
+        LinearLayout oleo = cartao(
+            "🔧 CONTROLE DE TROCA DE ÓLEO",
+            situacao + "\n" + aviso +
+            "\nÚltima troca: " + String.format(Locale.getDefault(),"%.0f km",kmOleo) +
+            "\nPróxima troca: " + String.format(Locale.getDefault(),"%.0f km",proximaTroca),
+            faltam <= 0 ? Color.RED :
+            faltam <= 100 ? Color.rgb(220,130,0) : VERDE
+        );
+
+        LinearLayout.LayoutParams margem =
+            new LinearLayout.LayoutParams(-1,-2);
+        margem.setMargins(5,5,5,12);
+        painel.addView(oleo,margem);
 
         historicoView.setText(
             prefs.getString("historico","Nenhum registro ainda."));
