@@ -56,7 +56,11 @@ public class MainActivity extends Activity {
         tela = new LinearLayout(this);
         tela.setOrientation(1);
         tela.setPadding(22,20,22,30);
-        tela.setBackgroundColor(Color.rgb(220,242,225));
+        Bitmap imagemFundo = BitmapFactory.decodeResource(getResources(), R.drawable.flash250);
+        android.graphics.drawable.BitmapDrawable fundo = new android.graphics.drawable.BitmapDrawable(getResources(), imagemFundo);
+        fundo.setGravity(Gravity.FILL);
+        fundo.setAlpha(55);
+        tela.setBackground(fundo);
         scroll.addView(tela);
 
         TextView titulo = new TextView(this);
