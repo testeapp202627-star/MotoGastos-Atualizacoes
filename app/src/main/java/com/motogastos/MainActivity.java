@@ -477,19 +477,32 @@ public class MainActivity extends Activity {
         double kmOleo = prefs.getFloat("kmOleo",(float)inicial);
         double faltam = kmOleo + INTERVALO_OLEO - km;
 
-        String aviso = faltam <= 0
-            ? "TROCA DE ÓLEO ATRASADA!"
-            : "Faltam " + String.format(Locale.getDefault(),
-                "%.0f km", faltam) + " para trocar o óleo.";
+        double proximaTroca = kmOleo + INTERVALO_OLEO;
+
+        String situacao = faltam <= 0
+            ? "🔴 TROCA DE ÓLEO ATRASADA!"
+            : faltam <= 100
+                ? "🟠 ATENÇÃO: TROCA PRÓXIMA!"
+                : "🟢 ÓLEO EM DIA";
+
+        String aviso = situacao + "\\n" +
+            (faltam <= 0
+                ? "Troca vencida há " + String.format(Locale.getDefault(),
+                    "%.0f km", Math.abs(faltam))
+                : "Faltam " + String.format(Locale.getDefault(),
+                    "%.0f km", faltam) + " para trocar.");
 
         painel.setText(
             "📍 KM atual: " + String.format(Locale.getDefault(),"%.0f",km)
-            + "\n⛽ Abastecimentos: " + prefs.getInt("quantidade",0)
-            + "\n💰 Combustível: " +
+            + "\\n⛽ Abastecimentos: " + prefs.getInt("quantidade",0)
+            + "\\n💰 Combustível: " +
                 dinheiro(prefs.getFloat("totalCombustivel",0))
-            + "\n🔧 Gastos com óleo: " +
+            + "\\n🔧 Gastos com óleo: " +
                 dinheiro(prefs.getFloat("totalOleo",0))
-            + "\n\n" + aviso);
+            + "\\n\\n🔧 CONTROLE DE TROCA DE ÓLEO"
+            + "\\nÚltima troca: " + String.format(Locale.getDefault(),"%.0f",kmOleo) + " km"
+            + "\\nPróxima troca: " + String.format(Locale.getDefault(),"%.0f",proximaTroca) + " km"
+            + "\\n\\n" + aviso);
 
         historicoView.setText(
             prefs.getString("historico","Nenhum registro ainda."));
