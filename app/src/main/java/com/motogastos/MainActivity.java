@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
         Bitmap imagemFundo = BitmapFactory.decodeResource(getResources(), R.drawable.flash250);
         android.graphics.drawable.BitmapDrawable fundo = new android.graphics.drawable.BitmapDrawable(getResources(), imagemFundo);
         fundo.setGravity(Gravity.FILL);
-        fundo.setAlpha(55);
+        fundo.setAlpha(180);
         tela.setBackground(fundo);
         scroll.addView(tela);
 
