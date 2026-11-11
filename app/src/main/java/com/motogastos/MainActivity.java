@@ -14,7 +14,8 @@ import java.text.*;
 public class MainActivity extends Activity {
     LinearLayout tela;
     EditText kmCampo, litrosCampo, precoCampo, kmOleoCampo, valorOleoCampo;
-    LinearLayout painel;
+    LinearLayout painel, menuBotoes, linhaBotoes;
+    int contadorBotoes = 0;
     TextView historicoView;
     android.content.SharedPreferences prefs;
     android.media.ToneGenerator som;
@@ -59,14 +60,14 @@ public class MainActivity extends Activity {
         Bitmap imagemFundo = BitmapFactory.decodeResource(getResources(), R.drawable.flash250);
         android.graphics.drawable.BitmapDrawable fundo = new android.graphics.drawable.BitmapDrawable(getResources(), imagemFundo);
         fundo.setGravity(Gravity.FILL);
-        fundo.setAlpha(180);
+        fundo.setAlpha(255);
         tela.setBackground(fundo);
         scroll.addView(tela);
 
         TextView titulo = new TextView(this);
         titulo.setText("🏍️ MotoGastos");
         titulo.setTextSize(30);
-        titulo.setTextColor(VERDE);
+        titulo.setTextColor(Color.rgb(190,25,35));
         titulo.setGravity(Gravity.CENTER);
         titulo.setTypeface(null,Typeface.BOLD);
         tela.addView(titulo);
@@ -75,6 +76,11 @@ public class MainActivity extends Activity {
         subtitulo.setText("Controle de combustível e manutenção");
         subtitulo.setTextSize(15);
         subtitulo.setGravity(Gravity.CENTER);
+        subtitulo.setTextColor(Color.WHITE);
+        android.graphics.drawable.GradientDrawable fundoSub = new android.graphics.drawable.GradientDrawable();
+        fundoSub.setColor(Color.rgb(25,25,25));
+        fundoSub.setCornerRadius(18);
+        subtitulo.setBackground(fundoSub);
         subtitulo.setPadding(0,8,0,20);
         tela.addView(subtitulo);
 
@@ -82,6 +88,9 @@ public class MainActivity extends Activity {
         painel.setOrientation(1);
         painel.setBackgroundColor(Color.TRANSPARENT);
         tela.addView(painel);
+        menuBotoes = new LinearLayout(this);
+        menuBotoes.setOrientation(1);
+        tela.addView(menuBotoes);
 
         kmCampo = new EditText(this);
         litrosCampo = new EditText(this);
@@ -244,27 +253,31 @@ public class MainActivity extends Activity {
         Button b = new Button(this);
         b.setText(nome);
 
-        int cor = nome.contains("COMBUSTÍVEL") ? Color.rgb(22,125,69)
-            : nome.contains("MANUTENÇÃO") ? Color.rgb(35,105,170)
-            : nome.contains("RELATÓRIOS") ? Color.rgb(120,85,165)
-            : Color.rgb(75,90,100);
-
         android.graphics.drawable.GradientDrawable fundo =
             new android.graphics.drawable.GradientDrawable();
-        fundo.setColor(cor);
+        fundo.setColor(Color.rgb(35,35,35));
         fundo.setCornerRadius(22);
+        fundo.setStroke(3, Color.rgb(190,25,35));
         b.setBackground(fundo);
         b.setTextColor(Color.WHITE);
-        b.setTextSize(16);
+        b.setTextSize(14);
         b.setTypeface(null, Typeface.BOLD);
         b.setAllCaps(false);
 
-        LinearLayout.LayoutParams p =
-            new LinearLayout.LayoutParams(-1,-2);
-        p.setMargins(4,7,4,7);
-        b.setLayoutParams(p);
+        if (contadorBotoes % 2 == 0) {
+            linhaBotoes = new LinearLayout(this);
+            linhaBotoes.setOrientation(0);
+            menuBotoes.addView(linhaBotoes,
+                new LinearLayout.LayoutParams(-1,-2));
+        }
 
-        tela.addView(b);
+        LinearLayout.LayoutParams p =
+            new LinearLayout.LayoutParams(0,-2,1);
+        p.setMargins(5,7,5,7);
+        b.setLayoutParams(p);
+        linhaBotoes.addView(b);
+        contadorBotoes++;
+
         b.setOnClickListener(v -> {
             tocarSom();
             acao.onClick(v);
@@ -503,7 +516,7 @@ public class MainActivity extends Activity {
             new android.graphics.drawable.GradientDrawable();
         fundo.setColor(Color.WHITE);
         fundo.setCornerRadius(22);
-        fundo.setStroke(2, Color.rgb(225,235,227));
+        fundo.setStroke(2, Color.rgb(190,25,35));
         c.setBackground(fundo);
         c.setElevation(5);
 
@@ -532,8 +545,8 @@ public class MainActivity extends Activity {
             new LinearLayout.LayoutParams(0,-2,1);
         item.setMargins(5,5,5,12);
 
-        linha.addView(cartao(t1,v1,VERDE),item);
-        linha.addView(cartao(t2,v2,VERDE),item);
+        linha.addView(cartao(t1,v1,Color.rgb(190,25,35)),item);
+        linha.addView(cartao(t2,v2,Color.rgb(190,25,35)),item);
         painel.addView(linha);
     }
 
@@ -559,7 +572,7 @@ public class MainActivity extends Activity {
         TextView tituloPainel = new TextView(this);
         tituloPainel.setText("RESUMO DA SUA MOTO");
         tituloPainel.setTextSize(19);
-        tituloPainel.setTextColor(VERDE);
+        tituloPainel.setTextColor(Color.rgb(190,25,35));
         tituloPainel.setTypeface(null,Typeface.BOLD);
         tituloPainel.setPadding(8,15,8,12);
         painel.addView(tituloPainel);
